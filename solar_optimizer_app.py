@@ -328,6 +328,40 @@ with st.sidebar:
         step=0.1,
         help="Power loss per degree above 25°C"
     )
+    
+    # Electricity bill section
+    with st.expander("💰 Electricity Rate Calculator"):
+        st.markdown("Calculate your actual electricity rate from your bill")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            last_bill = st.number_input(
+                "Last Month's Bill ($)",
+                min_value=0.0,
+                max_value=10000.0,
+                value=0.0,
+                step=0.01,
+                help="Total amount in dollars"
+            )
+        
+        with col2:
+            last_kwh = st.number_input(
+                "Last Month's Usage (kWh)",
+                min_value=0.0,
+                max_value=50000.0,
+                value=0.0,
+                step=1.0,
+                help="Total kWh consumed"
+            )
+        
+        # Calculate rate if both values provided
+        if last_bill > 0 and last_kwh > 0:
+            calculated_rate = last_bill / last_kwh
+            st.success(f"📊 Your electricity rate: ${calculated_rate:.4f}/kWh")
+            electricity_rate = calculated_rate
+        else:
+            st.info("💡 Using default rate: $0.12/kWh")
+            electricity_rate = 0.12
 
 # Main content area
 tab1, tab2 = st.tabs(["🎯 Optimal Angles", "📊 Historical Analysis"])
@@ -647,7 +681,8 @@ with tab2:
                     'system_size': system_size,
                     'panel_efficiency': panel_efficiency,
                     'system_efficiency': system_efficiency,
-                    'temp_coefficient': temp_coefficient
+                    'temp_coefficient': temp_coefficient,
+                    'electricity_rate': electricity_rate
                 }
                 
                 st.markdown('<div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; padding: 12px; margin: 8px 0; color: #000000 !important;"><strong style="color: #000000;">✅ Analysis complete! Data is ready for visualization and download.</strong></div>', unsafe_allow_html=True)
@@ -659,6 +694,10 @@ with tab2:
     if 'solar_data' in st.session_state:
         df = st.session_state['solar_data']
         params = st.session_state['system_params']
+        electricity_rate = params.get('electricity_rate', 0.12)  # Use stored rate or default
+        
+        # Show electricity rate being used
+        st.info(f"💡 Using electricity rate: ${electricity_rate:.4f}/kWh")
         
         # Summary metrics
         col1, col2, col3, col4 = st.columns(4)
@@ -676,7 +715,7 @@ with tab2:
             <div style="background-color: #ffffff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <p style="color: #666666; margin: 0; font-size: 14px;">Annual Production</p>
                 <h2 style="color: #000000; margin: 0;">{total_energy:,.0f} kWh</h2>
-                <p style="color: #4caf50; margin: 0; font-size: 14px;">↑ ${total_energy * 0.12:,.0f}/year</p>
+                <p style="color: #4caf50; margin: 0; font-size: 14px;">↑ ${total_energy * electricity_rate:,.0f}/year</p>
             </div>
             """, unsafe_allow_html=True)
         
@@ -685,7 +724,7 @@ with tab2:
             <div style="background-color: #ffffff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <p style="color: #666666; margin: 0; font-size: 14px;">Daily Average</p>
                 <h2 style="color: #000000; margin: 0;">{daily_avg:.1f} kWh</h2>
-                <p style="color: #4caf50; margin: 0; font-size: 14px;">↑ ${daily_avg * 0.12:.2f}/day</p>
+                <p style="color: #4caf50; margin: 0; font-size: 14px;">↑ ${daily_avg * electricity_rate:.2f}/day</p>
             </div>
             """, unsafe_allow_html=True)
         
