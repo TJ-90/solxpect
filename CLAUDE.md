@@ -97,3 +97,40 @@ A standalone Python script that calculates optimal solar panel orientation and e
    - Temperate (25-50° latitude): Equal to latitude
    - High latitude (50-90°): Latitude × 0.9
 3. **Power Calculation**: Considers direct beam, diffuse sky, and ground-reflected radiation
+
+### Streamlit Web App (`solar_optimizer_app.py`)
+A modern web interface for solar panel optimization with advanced features and visualizations.
+
+#### Running the Web App
+```bash
+# Start the Streamlit server
+./run_web_app.sh
+
+# Access at http://localhost:8501
+```
+
+#### Features
+1. **Optimal Angles Calculator**
+   - Visual representation of panel orientation
+   - Location-based recommendations
+   - Required panel area calculations
+
+2. **Historical Analysis**
+   - Fetches 1 year of weather data
+   - Calculates hourly energy production
+   - Interactive charts (monthly bars, daily heatmap)
+   - Excel/CSV export functionality
+
+#### User Interface
+- **Sidebar**: Input controls for location and system parameters
+- **Main Area**: Two tabs for different functionalities
+- **Responsive Design**: Works on desktop and mobile
+- **Dark Mode Support**: Optimized text colors for both themes
+
+#### Customizable Parameters
+- Location (latitude/longitude)
+- Panel efficiency (15-25%)
+- System size (kW)
+- System efficiency (85-98%)
+- Temperature coefficient
+- Electricity rate (default: $0.12/kWh)
