@@ -150,23 +150,73 @@ st.markdown("""
         background-color: #dc2626 !important;
     }
     
-    /* Sidebar styling - light gray text for dark mode */
-    .css-1d391kg, [data-testid="stSidebar"] {
-        color: #e2e8f0 !important;
+    /* Sidebar styling - force dark background with white text */
+    [data-testid="stSidebar"] {
+        background-color: #1e293b !important;
     }
     
-    .css-1d391kg h1, .css-1d391kg h2, .css-1d391kg h3, 
-    .css-1d391kg h4, .css-1d391kg h5, .css-1d391kg h6,
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4,
-    [data-testid="stSidebar"] h5, [data-testid="stSidebar"] h6 {
+    [data-testid="stSidebar"] > div {
+        background-color: #1e293b !important;
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+        background-color: #1e293b !important;
+    }
+    
+    /* All sidebar text should be white */
+    [data-testid="stSidebar"] * {
         color: #f8fafc !important;
     }
     
-    .css-1d391kg p, .css-1d391kg label, .css-1d391kg .stMarkdown,
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4,
+    [data-testid="stSidebar"] h5, [data-testid="stSidebar"] h6 {
+        color: #ffffff !important;
+    }
+    
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] label,
     [data-testid="stSidebar"] .stMarkdown {
-        color: #e2e8f0 !important;
+        color: #f8fafc !important;
+    }
+    
+    /* Input fields in sidebar - dark background */
+    [data-testid="stSidebar"] input[type="number"],
+    [data-testid="stSidebar"] input[type="text"] {
+        background-color: #334155 !important;
+        color: #ffffff !important;
+        border-color: #475569 !important;
+    }
+    
+    /* Slider labels and values */
+    [data-testid="stSidebar"] .stSlider label {
+        color: #f8fafc !important;
+    }
+    
+    [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMax"],
+    [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMin"] {
+        color: #cbd5e1 !important;
+    }
+    
+    /* Expander in sidebar */
+    [data-testid="stSidebar"] .streamlit-expanderHeader {
+        background-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+    
+    [data-testid="stSidebar"] .streamlit-expanderContent {
+        background-color: #2d3748 !important;
+    }
+    
+    /* Number input +/- buttons in sidebar */
+    [data-testid="stSidebar"] button[kind="stepUp"],
+    [data-testid="stSidebar"] button[kind="stepDown"] {
+        color: #000000 !important;
+        background-color: #e2e8f0 !important;
+    }
+    
+    [data-testid="stSidebar"] button[kind="stepUp"]:hover,
+    [data-testid="stSidebar"] button[kind="stepDown"]:hover {
+        background-color: #cbd5e1 !important;
     }
     
     /* Main content area - keep black text */
@@ -320,15 +370,6 @@ with st.sidebar:
         help="Includes inverter and wiring losses"
     )
     
-    temp_coefficient = st.number_input(
-        "Temperature Coefficient (%/°C)",
-        min_value=-0.6,
-        max_value=-0.2,
-        value=-0.4,
-        step=0.1,
-        help="Power loss per degree above 25°C"
-    )
-    
     # Electricity bill section
     with st.expander("💰 Electricity Rate Calculator"):
         st.markdown("Calculate your actual electricity rate from your bill")
@@ -391,6 +432,29 @@ def calculate_optimal_angles(latitude):
         zone = "High Latitude"
     
     return optimal_azimuth, optimal_tilt, hemisphere, direction, zone
+
+def calculate_temperature_coefficient(latitude):
+    """
+    Calculate temperature coefficient based on latitude.
+    Hotter climates (lower latitudes) have worse temperature coefficients.
+    """
+    abs_latitude = abs(latitude)
+    
+    if abs_latitude < 15:
+        # Equatorial/Tropical - highest temperatures, worst coefficient
+        return -0.45
+    elif abs_latitude < 30:
+        # Subtropical - hot climates
+        return -0.42
+    elif abs_latitude < 45:
+        # Temperate - moderate climates
+        return -0.40
+    elif abs_latitude < 60:
+        # Cool temperate
+        return -0.38
+    else:
+        # Cold/Arctic - best coefficient due to cooler temperatures
+        return -0.35
 
 def calculate_panel_area(system_size_kw, efficiency_percent):
     """Calculate required panel area"""
@@ -480,8 +544,9 @@ with tab1:
     with col1:
         st.header("Optimal Panel Configuration")
         
-        # Calculate optimal angles
+        # Calculate optimal angles and temperature coefficient
         azimuth, tilt, hemisphere, direction, zone = calculate_optimal_angles(latitude)
+        temp_coefficient = calculate_temperature_coefficient(latitude)
         panel_area = calculate_panel_area(system_size, panel_efficiency)
         
         # Display results in metric cards
@@ -517,6 +582,7 @@ with tab1:
                 <li><strong>Hemisphere:</strong> {hemisphere}</li>
                 <li><strong>Climate Zone:</strong> {zone}</li>
                 <li><strong>Panel Direction:</strong> Face panels toward the {direction}</li>
+                <li><strong>Temperature Coefficient:</strong> {temp_coefficient:.2f}%/°C (auto-calculated)</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
@@ -638,6 +704,7 @@ with tab2:
                 
                 # Calculate production
                 azimuth, tilt, _, _, _ = calculate_optimal_angles(latitude)
+                temp_coefficient = calculate_temperature_coefficient(latitude)
                 
                 excel_data = []
                 for i in range(len(times)):
