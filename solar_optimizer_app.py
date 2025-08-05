@@ -137,7 +137,7 @@ st.markdown("""
     
     .stTabs [aria-selected="true"] {
         color: #ffffff !important;
-        background-color: #dc2626 !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         border-radius: 4px;
     }
     
@@ -147,7 +147,7 @@ st.markdown("""
     
     /* Tab underline color */
     .stTabs [data-baseweb="tab-highlight"] {
-        background-color: #dc2626 !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     }
     
     /* Sidebar styling - force dark background with white text */
@@ -207,27 +207,41 @@ st.markdown("""
         background-color: #2d3748 !important;
     }
     
-    /* Number input +/- buttons in sidebar */
-    [data-testid="stSidebar"] button[kind="stepUp"],
-    [data-testid="stSidebar"] button[kind="stepDown"],
-    [data-testid="stSidebar"] button[data-testid="baseButton-stepUp"],
-    [data-testid="stSidebar"] button[data-testid="baseButton-stepDown"] {
-        color: #000000 !important;
-        background-color: #e2e8f0 !important;
+    /* Number input +/- buttons in sidebar - match slider text color */
+    [data-testid="stSidebar"] .stNumberInput button,
+    [data-testid="stSidebar"] button[title="Increment value"],
+    [data-testid="stSidebar"] button[title="Decrement value"] {
+        background-color: transparent !important;
+        color: #cbd5e1 !important;
+        border: 1px solid #475569 !important;
     }
     
-    [data-testid="stSidebar"] button[kind="stepUp"]:hover,
-    [data-testid="stSidebar"] button[kind="stepDown"]:hover,
-    [data-testid="stSidebar"] button[data-testid="baseButton-stepUp"]:hover,
-    [data-testid="stSidebar"] button[data-testid="baseButton-stepDown"]:hover {
-        background-color: #cbd5e1 !important;
+    [data-testid="stSidebar"] .stNumberInput button:hover,
+    [data-testid="stSidebar"] button[title="Increment value"]:hover,
+    [data-testid="stSidebar"] button[title="Decrement value"]:hover {
+        background-color: #334155 !important;
+        color: #f8fafc !important;
     }
     
-    /* Force black color on the actual +/- text */
-    [data-testid="stSidebar"] button[kind="stepUp"] *,
-    [data-testid="stSidebar"] button[kind="stepDown"] *,
-    [data-testid="stSidebar"] .stNumberInput button {
-        color: #000000 !important;
+    /* Force the +/- text to match slider value color */
+    [data-testid="stSidebar"] .stNumberInput button span,
+    [data-testid="stSidebar"] .stNumberInput button div {
+        color: inherit !important;
+    }
+    
+    /* Info/Success/Error messages in sidebar - white text */
+    [data-testid="stSidebar"] .stAlert,
+    [data-testid="stSidebar"] [data-testid="stAlert"],
+    [data-testid="stSidebar"] .stInfo,
+    [data-testid="stSidebar"] .stSuccess,
+    [data-testid="stSidebar"] .stWarning,
+    [data-testid="stSidebar"] .stError {
+        color: #ffffff !important;
+    }
+    
+    [data-testid="stSidebar"] .stAlert p,
+    [data-testid="stSidebar"] [data-testid="stAlert"] p {
+        color: #ffffff !important;
     }
     
     /* Main content area - keep black text */
@@ -412,7 +426,6 @@ with st.sidebar:
             st.success(f"📊 Your electricity rate: ${calculated_rate:.4f}/kWh")
             electricity_rate = calculated_rate
         else:
-            st.info("💡 Using default rate: $0.12/kWh")
             electricity_rate = 0.12
 
 # Main content area
