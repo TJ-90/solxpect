@@ -209,14 +209,25 @@ st.markdown("""
     
     /* Number input +/- buttons in sidebar */
     [data-testid="stSidebar"] button[kind="stepUp"],
-    [data-testid="stSidebar"] button[kind="stepDown"] {
+    [data-testid="stSidebar"] button[kind="stepDown"],
+    [data-testid="stSidebar"] button[data-testid="baseButton-stepUp"],
+    [data-testid="stSidebar"] button[data-testid="baseButton-stepDown"] {
         color: #000000 !important;
         background-color: #e2e8f0 !important;
     }
     
     [data-testid="stSidebar"] button[kind="stepUp"]:hover,
-    [data-testid="stSidebar"] button[kind="stepDown"]:hover {
+    [data-testid="stSidebar"] button[kind="stepDown"]:hover,
+    [data-testid="stSidebar"] button[data-testid="baseButton-stepUp"]:hover,
+    [data-testid="stSidebar"] button[data-testid="baseButton-stepDown"]:hover {
         background-color: #cbd5e1 !important;
+    }
+    
+    /* Force black color on the actual +/- text */
+    [data-testid="stSidebar"] button[kind="stepUp"] *,
+    [data-testid="stSidebar"] button[kind="stepDown"] *,
+    [data-testid="stSidebar"] .stNumberInput button {
+        color: #000000 !important;
     }
     
     /* Main content area - keep black text */
