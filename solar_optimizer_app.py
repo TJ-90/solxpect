@@ -437,7 +437,6 @@ with st.sidebar:
         system_cost_per_kw = st.number_input(
             "System Cost per kW ($)",
             min_value=100.0,
-            max_value=10000.0,
             value=1000.0,
             step=50.0,
             help="Average cost per kW installed (default: $1,000/kW)"
