@@ -349,6 +349,7 @@ with st.sidebar:
             max_value=90.0,
             value=37.7749,
             step=0.0001,
+            format="%.4f",
             help="Enter latitude in decimal degrees"
         )
     
@@ -359,6 +360,7 @@ with st.sidebar:
             max_value=180.0,
             value=-122.4194,
             step=0.0001,
+            format="%.4f",
             help="Enter longitude in decimal degrees"
         )
     
