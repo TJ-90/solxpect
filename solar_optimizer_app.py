@@ -867,35 +867,89 @@ with tab2:
         
         st.plotly_chart(fig_monthly, use_container_width=True)
         
-        # Daily production heatmap
-        daily_pivot = daily_df.copy()
-        daily_pivot['Date'] = pd.to_datetime(daily_pivot['Date'])
-        daily_pivot['Day'] = daily_pivot['Date'].dt.day
-        daily_pivot['Month'] = daily_pivot['Date'].dt.month_name()
+        # Add cost savings table section
+        st.divider()
+        st.subheader("💰 Cost Savings Analysis")
         
-        pivot_table = daily_pivot.pivot_table(
-            values='Energy (kWh)',
-            index='Day',
-            columns='Month',
-            aggfunc='mean'
+        # Calculate various financial metrics
+        annual_production = total_energy  # Already calculated above
+        annual_savings = annual_production * electricity_rate
+        
+        # Typical system costs (rough estimates)
+        cost_per_kw = 1000  # $1000 per kW installed
+        system_cost = params['system_size'] * cost_per_kw
+        
+        # Payback period
+        if annual_savings > 0:
+            payback_years = system_cost / annual_savings
+        else:
+            payback_years = float('inf')
+        
+        # 25-year lifetime savings
+        lifetime_savings = annual_savings * 25 - system_cost
+        
+        # Monthly average
+        monthly_savings = annual_savings / 12
+        
+        # Create the savings table
+        savings_data = {
+            'Metric': [
+                'System Size',
+                'Estimated System Cost',
+                'Annual Energy Production',
+                'Annual Savings',
+                'Monthly Savings',
+                'Simple Payback Period',
+                '25-Year Net Savings',
+                'CO₂ Avoided Annually'
+            ],
+            'Value': [
+                f"{params['system_size']} kW",
+                f'${system_cost:,.0f}',
+                f'{annual_production:,.0f} kWh',
+                f'${annual_savings:,.2f}',
+                f'${monthly_savings:.2f}',
+                f'{payback_years:.1f} years' if payback_years < 100 else 'N/A',
+                f'${lifetime_savings:,.0f}',
+                f'{annual_production * 0.0004:,.0f} metric tons'  # EPA average
+            ],
+            'Notes': [
+                'Installed capacity',
+                f'At ${cost_per_kw}/kW (estimate)',
+                'Based on historical data',
+                f'At ${electricity_rate:.3f}/kWh',
+                'Average monthly savings',
+                'Without incentives',
+                'After system cost',
+                'EPA average: 0.4 kg CO₂/kWh'
+            ]
+        }
+        
+        df_savings = pd.DataFrame(savings_data)
+        
+        # Style the dataframe
+        st.dataframe(
+            df_savings,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Metric": st.column_config.TextColumn("Metric", width="medium"),
+                "Value": st.column_config.TextColumn("Value", width="small"),
+                "Notes": st.column_config.TextColumn("Notes", width="medium")
+            }
         )
         
-        # Reorder months
-        month_order = ['January', 'February', 'March', 'April', 'May', 'June',
-                      'July', 'August', 'September', 'October', 'November', 'December']
-        pivot_table = pivot_table[[m for m in month_order if m in pivot_table.columns]]
+        # Add disclaimer
+        st.info("""
+        ℹ️ **Disclaimer**: These calculations are estimates based on:
+        - Historical weather data for your location
+        - Current electricity rate (adjustable in sidebar)
+        - Simplified system cost of $1,000/kW
+        - No incentives, tax credits, or rebates included
+        - No panel degradation or inflation considered
         
-        fig_heatmap = px.imshow(
-            pivot_table,
-            title='Daily Production Heatmap (kWh)',
-            labels=dict(x="Month", y="Day of Month", color="kWh"),
-            color_continuous_scale='YlOrRd',
-            aspect='auto'
-        )
-        
-        fig_heatmap.update_layout(height=600)
-        
-        st.plotly_chart(fig_heatmap, use_container_width=True)
+        Actual costs and savings will vary. Consult local installers for accurate quotes.
+        """)
         
         # Download section
         st.subheader("📥 Download Data")
