@@ -429,6 +429,27 @@ with st.sidebar:
             electricity_rate = calculated_rate
         else:
             electricity_rate = 0.12
+    
+    # System cost input
+    with st.expander("💵 System Cost Settings"):
+        st.markdown("Customize installation cost estimates")
+        
+        system_cost_per_kw = st.number_input(
+            "System Cost per kW ($)",
+            min_value=100.0,
+            max_value=10000.0,
+            value=1000.0,
+            step=50.0,
+            help="Average cost per kW installed (default: $1,000/kW)"
+        )
+        
+        st.info(f"""
+        💡 **Cost Guidelines**:
+        - Budget systems: $600-800/kW
+        - Standard systems: $900-1,200/kW
+        - Premium systems: $1,200-2,000/kW
+        - Includes panels, inverter, installation
+        """)
 
 # Main content area
 tab1, tab2 = st.tabs(["🎯 Optimal Angles", "📊 Historical Analysis"])
@@ -775,7 +796,8 @@ with tab2:
                     'panel_efficiency': panel_efficiency,
                     'system_efficiency': system_efficiency,
                     'temp_coefficient': temp_coefficient,
-                    'electricity_rate': electricity_rate
+                    'electricity_rate': electricity_rate,
+                    'system_cost_per_kw': system_cost_per_kw
                 }
                 
                 st.markdown('<div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; padding: 12px; margin: 8px 0; color: #000000 !important;"><strong style="color: #000000;">✅ Analysis complete! Data is ready for visualization and download.</strong></div>', unsafe_allow_html=True)
@@ -875,8 +897,8 @@ with tab2:
         annual_production = total_energy  # Already calculated above
         annual_savings = annual_production * electricity_rate
         
-        # Typical system costs (rough estimates)
-        cost_per_kw = 1000  # $1000 per kW installed
+        # System costs using custom value
+        cost_per_kw = params.get('system_cost_per_kw', 1000)  # Use custom value or default
         system_cost = params['system_size'] * cost_per_kw
         
         # Payback period
@@ -940,11 +962,11 @@ with tab2:
         )
         
         # Add disclaimer
-        st.info("""
+        st.info(f"""
         ℹ️ **Disclaimer**: These calculations are estimates based on:
         - Historical weather data for your location
         - Current electricity rate (adjustable in sidebar)
-        - Simplified system cost of $1,000/kW
+        - System cost of ${cost_per_kw:,.0f}/kW (adjustable in sidebar)
         - No incentives, tax credits, or rebates included
         - No panel degradation or inflation considered
         
